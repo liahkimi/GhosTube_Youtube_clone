@@ -1,11 +1,11 @@
 import mongoose from "mongoose"; 
 
-mongoose.connect("mongodb://127.0.0.1:27017/wetube");//mongodb에 wetube라는 새 database 생성
+mongoose.connect(process.env.DB_URL);//mongodb에 wetube라는 새 database 생성
 
 const db = mongoose.connection;//mongoose가 준 db connection에 대한 access
 
-const handleError = () => console.log("💥 DB Error", error)
 const handleOpen = () => console.log("✅ Connected to DB");
+const handleError = (error) => console.log("💥 DB Error", error)
 
 //event
 db.on("error", handleError);//(on:여러번 일어나는 error감지용)

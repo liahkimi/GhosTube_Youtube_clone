@@ -1,14 +1,14 @@
-//선언
-//서버의 설정 및 서버를 이루고 있는 코드
-//(express를 사용해서 router등을 만들어 서버를 만드는 것이나, server의 configuration에 관련된 코드만 처리)
 
 import express from "express"; 
 import morgan from "morgan";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 import rootRouter from "./routers/rootRouter";
 import userRouter from "./routers/userRouter";
 import videoRouter from "./routers/videoRouter";
+import { localsMiddleware } from "./middlewares";
 
-const app = express();//create server
+const app = express();//create server~
 const logger = morgan('dev');//morgan middleware
 
 
@@ -17,6 +17,16 @@ app.set("views", process.cwd() + "/src/views") //process.cwd() (=현재디렉토
 app.use(logger);
 app.use(express.urlencoded({extended: true}));//express가 form의 value를 이해하도록 설치함
 
+
+//세션미들웨어
+app.use(
+    session({
+    secret: process.env.COOKIE_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({mongoUrl : process.env.DB_URL}) //default로 설정된 store가 아닌, mongoDB store로 설정
+}));
+app.use(localsMiddleware);//로컬미들웨어
 app.use('/', rootRouter);
 app.use('/users', userRouter);
 app.use('/videos', videoRouter);
