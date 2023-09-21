@@ -1,4 +1,5 @@
 import User from "../models/User" 
+import fetch from "node-fetch";
 import bcrypt from "bcrypt";
 
 export const getJoin = (req,res) => res.render("join", {pageTitle: "Join"})
@@ -39,7 +40,7 @@ export const postLogin = async (req,res)=>{
   //check if account exists
   const {username, password} = req.body;
   const pageTitle = "Login";
-  const user = await User.findOne({username});
+  const user = await User.findOne({username, socialOnly: false});//소셜로그인뿐만 아니라 그냥 로그인도 가능
     if(!user){
         return res
             .status(400)
@@ -116,24 +117,107 @@ export const finishGithubLogin = async(req,res) => {
             (email) => email.primary === true && email.verified === true
         );
         if(!emailObj){
+            //set notification soon!
             return res.redirect("/login")
         }
-        //같은 email를 가진 user가 이미 있다면, 그 유저를 로그인 시켜주기
-        const existingUser = await User.findOne({email: emailObj.email});
-        if(existingUser){
-            req.session.loggedIn = true;
-            req.session.user = existingUser;
-            return res.redirect("/")
-        }else{
-            //같은 email를 가진 user가 없다면, 계정 생성하기 추가
-        }
+        //깃헙과 같은 email를 가진 user가 db에 이미 있다면, 그 유저를 로그인 시켜주기
+        let user = await User.findOne({email: emailObj.email});
+        if(!user){
+             user = await User.create({
+                avatarUrl: userData.avatar_url,
+                name: userData.name,//'김가은'
+                username: userData.login,//'liahkimi',
+                email:emailObj.email,//똑같은 email주소 가져오기 //'maruanna1994@gmail.com'
+                password:"",//아직 계정이 없어서
+                socialOnly: true,//소셜로그인으로만 로그인 가능
+                location:userData.location,
+            //db에 같은 email를 가진 user가 없다면, 유저의 깃헙 정보로 계정 생성하기 
+            });
+        }       
+        req.session.loggedIn = true;
+        req.session.user = user;
+        return res.redirect("/")
         }else{
             return res.redirect("/login")
-        };
-
-
+        }
+    };
+export const logout = (req,res) => {
+        req.session.destroy();
+        return res.redirect("/");
+    }
+export const getEdit = (req,res) => {
+    return res.render("edit-profile", {pageTitle: "Edit Profile"});
 }
-export const edit = (req,res) => res.send("Edit User")
-export const remove = (req,res) => res.send("Remove User")
-export const logout = (req,res) => res.send("Logout")
+//+ 바꾸려는 username과 email이 db에 이미 있으면, 유저에게 알려주는 코드 짜기(https://github.com/Ryan-Dia/wetube-2022/commit/afe1ef8f3d794ca05e0f0eb343224e333e8decd5 참고)
+export const postEdit = async(req,res) => {
+     // = const i = req.session.user._id 
+     //(req.session안의 user object에서 user id 찾기) 
+    const { 
+        session: {
+            user: {_id},
+            },
+        body: {name, email, username, location}, //req.body에서 얻은 데이터
+        } = req;
+    //findByIdAndUpdate(_id,UpdateQuery)
+    const updatedUser = await User.findByIdAndUpdate(_id, {
+        name, 
+        email, 
+        username, 
+        location,
+    },
+    {new: true}
+    );
+    req.session.user = updatedUser;
+    // //세션 업데이트
+    // req.session.user = {
+    //     ...req.session.user, //나머지것들은(email,username..) 기존의것과 같음.
+    //     name, //form의 value값으로 업데이트
+    //     email, 
+    //     username, 
+    //     location,
+    // }
+    return res.redirect("/users/edit");
+};
+
+export const getChangePassword = (req,res)  => { 
+    //깃허브로그인 유저는 password가 없으니, 못바꾸게 제한
+    if(req.session.user.socialOnly === true){
+        return res.redirect("/");
+    }
+    return res.render("users/change-password", {pageTitle: "Change Password"});
+}
+export const postChangePassword = async(req,res)  => {
+    //어떤유저가 변경하고 싶어하는지
+    const { 
+        //세션의 user 정보
+        session: {
+            user: {_id},
+            },
+        //form에서 정보가져오기
+        body: {oldPassword, newPassword,newPasswordConfirmation}, 
+        } = req;
+        //현재 DB user정보 => user로 최신 업데이트된 데이터를 가져오므로, 일일히 세션 업데이트 해줄 필요없다.
+        const user = await User.findById(_id);
+        //기존 비번과 유저가 input에 입력한 기존비번이 동일한지 확인
+        const ok = await bcrypt.compare(oldPassword, user.password)
+        if(!ok){
+            return res.status(400).render("users/change-password", {
+                pageTitle: "Change Password", 
+                errorMessage: "The Current Password is incorrect "
+            });
+        }
+        if(newPassword !== newPasswordConfirmation){
+            //브라우저가 패스워드 변경할것인지 상태변경 메시지 안뜨게  status(400)설정
+            return res.status(400).render("users/change-password", {
+                pageTitle: "Change Password", 
+                errorMessage: "The Password does not match the confirmation "
+            });
+        }
+    //최종, 비번 변경해주기
+    user.password = newPassword;
+    await user.save()//User.js의 pre save도 작동되서 hashing된다.
+
+    //send notification : 비밀번호를 변경하셨군요!!
+    return res.redirect("/users/logout")//비번 변경되면 로그아웃시키기
+}
 export const see = (req,res) => res.send("See User")
