@@ -103,7 +103,6 @@ export const finishGithubLogin = async(req,res) => {
             },
         })  
     ).json();
-    console.log(userData);
     const emailData = await(
         await fetch(`${apiUrl}/user/emails`, {
             headers:{
@@ -111,7 +110,6 @@ export const finishGithubLogin = async(req,res) => {
                 },
             })
         ).json();
-        console.log(emailData);
         //깃헙이 주는 list에서 primary이면서 verified된 email객체를 찾기
         const emailObj = emailData.find(
             (email) => email.primary === true && email.verified === true
@@ -153,17 +151,24 @@ export const postEdit = async(req,res) => {
      // = const i = req.session.user._id 
      //(req.session안의 user object에서 user id 찾기) 
     const { 
+        //session에는 user object가 있고, 우리는 거기에 있는 정보를 사용할 수 있음.
         session: {
-            user: {_id},
-            },
+            user: {_id, avatarUrl},
+        },
         body: {name, email, username, location}, //req.body에서 얻은 데이터
+        file,
         } = req;
     //findByIdAndUpdate(_id,UpdateQuery)
-    const updatedUser = await User.findByIdAndUpdate(_id, {
-        name, 
-        email, 
-        username, 
-        location,
+    const updatedUser = await User.findByIdAndUpdate(
+        _id, 
+        {
+            avatarUrl: file ?  file.path : avatarUrl, 
+            //file이 업데이트된게 있으면 file.path값을 avatarUrl에 대입하고, 업데이트된게 없으면 기존 avatarUrl 쓴다.
+            //절대 DB에는 파일을 저장하지 않는다. 대신 파일의 위치를 저장한다!!
+            name,
+            email, 
+            username, 
+            location,
     },
     {new: true}
     );
@@ -194,7 +199,7 @@ export const postChangePassword = async(req,res)  => {
             user: {_id},
             },
         //form에서 정보가져오기
-        body: {oldPassword, newPassword,newPasswordConfirmation}, 
+        body: {oldPassword, newPassword,newPasswordConfirmation},
         } = req;
         //현재 DB user정보 => user로 최신 업데이트된 데이터를 가져오므로, 일일히 세션 업데이트 해줄 필요없다.
         const user = await User.findById(_id);
@@ -220,4 +225,21 @@ export const postChangePassword = async(req,res)  => {
     //send notification : 비밀번호를 변경하셨군요!!
     return res.redirect("/users/logout")//비번 변경되면 로그아웃시키기
 }
-export const see = (req,res) => res.send("See User")
+export const see = async(req,res) => {
+    const {id} = req.params;//url에 있는 user의 id 찾아옴
+    const user = await User.findById(id).populate({
+        path: "videos",
+        populate: {
+          path: "owner",
+          model: "User",
+        },
+      });
+    //db에 id를 검색하고 mongoose가 그 id를 가져다가 모든 영상을 프로필창에 보여줌
+    if(!user){
+        return res.status(404).render("404", {pageTitle: "User not found."} );
+    }
+    return res.render("users/profile", {//render 작업하기
+        pageTitle : user.name, 
+        user,//user를 변수로 users/profile로 보냄
+    });
+};

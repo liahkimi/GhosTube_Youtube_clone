@@ -27,6 +27,8 @@ app.use(
     store: MongoStore.create({mongoUrl : process.env.DB_URL}) //default로 설정된 store가 아닌, mongoDB store로 설정
 }));
 app.use(localsMiddleware);//로컬미들웨어
+app.use('/uploads', express.static("uploads") ) // 브라우저에 노출시키고 싶은 폴더
+app.use('/static', express.static("assets") ); //브라우저에 assets 폴더 안을 열람할 수 있게 해달라고 static으로 요청
 app.use('/', rootRouter);
 app.use('/users', userRouter);
 app.use('/videos', videoRouter);

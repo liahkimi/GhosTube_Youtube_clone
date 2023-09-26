@@ -9,12 +9,16 @@ const userSchema = new mongoose.Schema({
     password:{type:String},
     name:{type:String, required: true},
     location: String,
+    videos: [{type: mongoose.Schema.Types.ObjectId, ref: "Video"}],//Video model에서 오는 ObjectId로 구성된 array
 })
 //pre save 미들웨어
 userSchema.pre('save', async function(){ 
-    this.password = await bcrypt.hash(this.password, 5, ) //5=saltrounds, async-await사용중이므로 콜백함수 안씀 
-    //this: 생성된 user object
-})
+    //pw 수정할때만 save 눌렀을 때 pw hashing되게 하기
+    if(this.isModified("password")){
+        this.password = await bcrypt.hash(this.password, 5, ) //5=saltrounds, async-await사용중이므로 콜백함수 안씀 
+        //this: 생성된 user object
+    }
+});
 
 const User = mongoose.model("User", userSchema)
 export default User;
