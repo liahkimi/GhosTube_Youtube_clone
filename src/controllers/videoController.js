@@ -31,6 +31,7 @@ export const getEdit = async (req, res) => {
   }
   //로그인된 유저가 영상주인이 아니면 수정 못하게 보호하기
   if (String(video.owner) !== String(_id)) {
+    req.flash("error", "Not authorized");
     return res.status(403).redirect("/");
   }
   return res.render("edit", { pageTitle: `Edit ${video.title}`, video });
@@ -48,6 +49,7 @@ export const postEdit = async (req, res) => {
   }
   //로그인된 유저가 영상주인이 아니면 수정 못하게 보호하기
   if (String(video.owner) !== String(_id)) {
+    req.flash("error", "You are not the owner of the video.");
     return res.status(403).redirect("/");
   }
   await Video.findByIdAndUpdate(id, {
@@ -55,6 +57,7 @@ export const postEdit = async (req, res) => {
     description,
     hashtags: Video.formatHashtags(hashtags),
   });
+  req.flash("success", "Changes saved.");
   return res.redirect(`/videos/${id}`);
 };
 
@@ -66,13 +69,15 @@ export const postUpload = async (req, res) => {
   const {
     user: { _id },
   } = req.session;
-  const { path: fileUrl } = req.file;
+  console.log(req.files);
+  const { video, thumb } = req.files;
   const { title, description, hashtags } = req.body;
   try {
     const newVideo = await Video.create({
       title,
       description,
-      fileUrl,
+      fileUrl: video[0].path,
+      thumbUrl: thumb[0].path.replace(/[\\]/g, "/"), //파일경로를 윈도우는 \\가 아닌 /를 써야해서 정규식으로 변환
       owner: _id, //user의 id를 Video의 owner에 추가함
       hashtags: Video.formatHashtags(hashtags),
     });

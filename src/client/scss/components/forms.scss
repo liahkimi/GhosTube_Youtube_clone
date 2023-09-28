@@ -9,7 +9,8 @@ form {
   }
 }
 
-input:not(input[type="range"]) {
+input:not(input[type="range"]),
+input[type="submit"] {
   all: unset;
   padding: 15px 20px;
   border-radius: 5px;
@@ -24,7 +25,7 @@ input:not(input[type="range"]) {
   }
 }
 
-input [type="submit"],
+.submitBtn,
 .social__btn {
   border-radius: 5px;
   padding: 12px 20px;
@@ -33,4 +34,12 @@ input [type="submit"],
   text-align: center;
   cursor: pointer;
   display: block;
+  border: none;
+  &:focus {
+    outline: none;
+  }
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }

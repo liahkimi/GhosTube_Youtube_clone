@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import session from "express-session";
+import flash from "express-flash";
 import MongoStore from "connect-mongo";
 import rootRouter from "./routers/rootRouter";
 import userRouter from "./routers/userRouter";
@@ -25,6 +26,13 @@ app.use(
     store: MongoStore.create({ mongoUrl: process.env.DB_URL }), //default로 설정된 store가 아닌, mongoDB store로 설정
   })
 );
+//SharedArrayBuffer is not defined 에러때문에 설정함
+app.use((req, res, next) => {
+  res.header("Cross-Origin-Embedder-Policy", "require-corp");
+  res.header("Cross-Origin-Opener-Policy", "same-origin");
+  next();
+});
+app.use(flash());
 app.use(localsMiddleware); //로컬미들웨어
 app.use("/uploads", express.static("uploads")); // 브라우저에 노출시키고 싶은 폴더
 app.use("/static", express.static("assets")); //브라우저에 assets 폴더 안을 열람할 수 있게 해달라고 static으로 요청
@@ -32,5 +40,10 @@ app.use("/", rootRouter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
 app.use("/api", apiRouter);
+app.use((req, res, next) => {
+  res.header("Cross-Origin-Embedder-Policy", "require-corp");
+  res.header("Cross-Origin-Opener-Policy", "same-origin");
+  next();
+});
 
 export default app;
