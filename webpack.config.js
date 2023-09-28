@@ -4,7 +4,8 @@ const path = require("path");
 module.exports = {
     entry: {
        main: "./src/client/js/main.js",
-       videoPlayer: "./src/client/js/videoPlayer.js"
+       videoPlayer: "./src/client/js/videoPlayer.js",
+       recorder: "./src/client/js/recorder.js"
     },
     mode: 'development',
     watch: true,//콘솔창 2개로 볼수있게 함(프엔/백엔)

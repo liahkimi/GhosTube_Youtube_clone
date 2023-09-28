@@ -13,7 +13,6 @@ const videoContainer = document.getElementById("videoContainer");
 const videoControls  = document.getElementById("videoControls");
 
 
-
 //global variable
 let volumeValue = 0.5;
 video.volume = volumeValue; //js에 한번더 설정
@@ -35,7 +34,7 @@ const handlePlayClick = (e) => {
   };
 
 //mute&unmute btn
-    const handleMuteClick = (e) => {
+const handleMuteClick = (e) => {
     if(video.muted){
         video.muted = false;
     }else{
@@ -88,7 +87,6 @@ const handleTimelineChange = (event) => {
 } = event;
 video.currentTime = value;//비디오 타임 세팅
 }
-
 
 //큰화면 보여주기
 const handleFullScreen = () => {
@@ -154,11 +152,20 @@ const handleVideoClickPlay = () => {
   handlePlayClick();
   }
 
+//조회수 업데이트
+const handleEnded = () => {
+  const {id}= videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, {
+    method: "POST",
+  });//시청이 끝나면 이 url에 POST요청이 보내짐
+} 
+
 playBtn.addEventListener("click",handlePlayClick);
 muteBtn.addEventListener("click",handleMuteClick);
 volumeRange.addEventListener("input", handleVolumeChange);
 video.addEventListener("loadeddata", handleLoadedMetadata);
 video.addEventListener("timeupdate",handleTimeUpdate);
+video.addEventListener("ended",handleEnded);
 videoContainer.addEventListener("mousemove", handleMouseMove);
 videoContainer.addEventListener("mouseleave", handleMouseLeave);
 timeline.addEventListener("input", handleTimelineChange);

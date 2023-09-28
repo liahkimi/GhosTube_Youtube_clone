@@ -13,6 +13,9 @@
   "author": "Gaeun Kim<maruanna1994@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@ffmpeg/core": "^0.8.5",
+    "@ffmpeg/ffmpeg": "^0.9.8",
+    "@ffmpeg/util": "^0.12.1",
     "bcrypt": "^5.1.1",
     "connect-mongo": "^5.0.0",
     "dotenv": "^16.3.1",

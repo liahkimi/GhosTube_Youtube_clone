@@ -4,9 +4,11 @@ html(lang="ko")
         title #{pageTitle} | #{siteName}
         link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css")
         link(rel="stylesheet", href="/static/css/styles.css")
+        link(rel="icon" href="data:;base64,iVBORw0KGgo=")
     body 
         include partials/header
         main
             block content
         include partials/footer
+    script(src="/static/js/main.js")
     block scripts

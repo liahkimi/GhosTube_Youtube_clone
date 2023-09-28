@@ -116,3 +116,16 @@ export const search = async(req, res) => {
     }
     return res.render("search", {pageTitle:"Search", videos});
 }
+
+//조회수 기록 (템플릿을 렌더링하지 않음. url변경x. 백엔드에 조회수+1 정보만 전송 처리함)
+//interactivity : url이 바뀌지 않아도, 페이지에 변화가 생기는 것!
+export const registerView = async(req, res) => {
+    const {id} = req.params;
+    const video = await Video.findById(id);
+    if(!video){
+        return res.sendStatus(404);//sendStatus:상태코드를 보내고 연결 끝냄
+    }
+    video.meta.views = video.meta.views + 1;
+    await video.save();//수정된 data를 db에 저장하기 위한 save function
+    return res.sendStatus(200);// =ok
+};
