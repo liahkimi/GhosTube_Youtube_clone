@@ -7,6 +7,20 @@ let stream;
 let recorder;
 let videoFile;
 
+const files = {
+  input: "recording.webm",
+  output: "output.mp4",
+  thumb: "thumbnail.jpg",
+};
+
+const downloadFile = (fileUrl, fileName) => {
+  const a = document.createElement("a");
+  a.href = fileUrl;
+  a.download = "MyRecording.mp4";
+  document.body.appendChild(a);
+  a.click();
+};
+
 //다운로드
 const handleDownload = async () => {
   const ffmpeg = createFFmpeg({ log: true }); //ffmpeg의 인스턴스 &  {log:true}는 무슨일이 벌어지고 있는지 콘솔로 보여지게 하기 위함
@@ -16,27 +30,27 @@ const handleDownload = async () => {
   //유저의 브라우저(컴퓨터)를 사용하는 상황임을 잊지 말기! => 처리할 부분 없음
 
   //2.ffmpeg에 파일 만들기
-  ffmpeg.FS("writeFile", "recording.webm", await fetchFile(videoFile)); //.FileSystem(method, filename, await binaryData function)
+  ffmpeg.FS("writeFile", "files.input", await fetchFile(videoFile)); //.FileSystem(method, filename, await binaryData function)
 
   //3.input명령어 사용 : 가상컴퓨터에 이미 존재하는 recording.webm파일을 input으로 받고, mp4로 변환하는 명령어
-  await ffmpeg.run("-i", "recording.webm", "-r", "60", "output.mp4"); // "-r", "60" = 영상을 초당 60프레임으로 인코딩해주는 명령어(액션영화같이 더 빠른 영상 인코딩을 가능하게 해줌)
+  await ffmpeg.run("-i", "files.input", "-r", "60", "files.output"); // "-r", "60" = 영상을 초당 60프레임으로 인코딩해주는 명령어(액션영화같이 더 빠른 영상 인코딩을 가능하게 해줌)
 
   //7.썸네일 따기
   //7-1.-ss명령어 : 영상의 특정 시간대로 가게 해줌 & -frames:v, 1 명령어 : 이동한 시간의 스크린샷 1장을 찍어줌
   await ffmpeg.run(
     "-i",
-    "recording.webm",
+    "files.input",
     "-ss",
     "00:00:01",
     "-frames:v",
     "1",
-    "thumbnail.jpg"
+    "files.thumb"
   );
 
   //4.readFile명령어 사용 : mp4 파일 가져오기
-  const mp4File = ffmpeg.FS("readFile", "output.mp4");
+  const mp4File = ffmpeg.FS("readFile", "files.output");
   //7-2.thumbFile 읽기
-  const thumbFile = ffmpeg.FS("readFile", "thumbnail.jpg");
+  const thumbFile = ffmpeg.FS("readFile", "files.thumb");
 
   //console.log(mp4File);//=>Unit8Array(8bit의 양수 array)타입의 파일 배열 반환
   //console.log(mp4File.buffer);//=>binary data에 접근하기 위해 buffer사용=>buffer은 ArrayBuffer 반환=영상을 나타내는 bytes의 배열
@@ -65,10 +79,11 @@ const handleDownload = async () => {
   document.body.appendChild(thumbA);
   thumbA.click();
 
+  //요기서 브라우저 보안정책으로 에러남 => 추후 해결하기!
   //다운로드 후, 파일 연결 끊기
-  ffmpeg.FS("unlink", "recording.webm");
-  ffmpeg.FS("unlink", "output.mp4");
-  ffmpeg.FS("unlink", "thumbnail.jpg");
+  ffmpeg.FS("unlink", "files.input");
+  ffmpeg.FS("unlink", "files.output");
+  ffmpeg.FS("unlink", "files.thumb");
   //다운로드 후, url 연결끊기
   URL.revokeObjectURL(mp4Url);
   URL.revokeObjectURL(thumbUrl);
