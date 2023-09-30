@@ -1,4 +1,20 @@
 import multer from "multer";
+import multerS3 from "multer-s3";
+import aws from "aws-sdk";
+
+const s3 = new aws.S3({
+  credentials: {
+    accessKeyId: process.env.AWS_ID,
+    secretAccessKey: process.env.AWS_SECRET,
+  },
+});
+
+const multerUploader = multerS3({
+  s3: s3,
+  bucket: "wetubeliah",
+  acl: "public-read",
+});
+
 //로컬미들웨어 - locals에 저장하는 모든 정보는 views(pug)에서 전역 사용 가능
 export const localsMiddleware = (req, res, next) => {
   res.locals.loggedIn = Boolean(req.session.loggedIn);
@@ -33,6 +49,7 @@ export const avatarUpload = multer({
   limits: {
     fileSize: 3000000,
   },
+  storage: multerUploader,
 });
 //유저가 업로드한 비디오 파일을 uploads 폴더의 a
 export const videoUpload = multer({
@@ -40,4 +57,5 @@ export const videoUpload = multer({
   limits: {
     fileSize: 100000000,
   },
+  storage: multerUploader,
 });

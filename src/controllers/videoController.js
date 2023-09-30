@@ -76,8 +76,8 @@ export const postUpload = async (req, res) => {
     const newVideo = await Video.create({
       title,
       description,
-      fileUrl: video[0].path,
-      thumbUrl: thumb[0].path.replace(/[\\]/g, "/"), //파일경로를 윈도우는 \\가 아닌 /를 써야해서 정규식으로 변환
+      fileUrl: video[0].location,
+      thumbUrl: thumb[0].location.replace(/[\\]/g, "/"), //파일경로를 윈도우는 \\가 아닌 /를 써야해서 정규식으로 변환
       owner: _id, //user의 id를 Video의 owner에 추가함
       hashtags: Video.formatHashtags(hashtags),
     });

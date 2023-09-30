@@ -161,7 +161,7 @@ export const postEdit = async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     _id,
     {
-      avatarUrl: file ? file.path : avatarUrl,
+      avatarUrl: file ? file.location : avatarUrl,
       //file이 업데이트된게 있으면 file.path값을 avatarUrl에 대입하고, 업데이트된게 없으면 기존 avatarUrl 쓴다.
       //절대 DB에는 파일을 저장하지 않는다. 대신 파일의 위치를 저장한다!!
       name,
