@@ -9,9 +9,17 @@ const s3 = new aws.S3({
   },
 });
 
-const multerUploader = multerS3({
+const isHeroku = process.env.NODE_ENV === "production";
+
+const s3ImageUploader = multerS3({
   s3: s3,
-  bucket: "wetubeliah",
+  bucket: "wetubeliah/images",
+  acl: "public-read",
+});
+
+const s3VideoUploader = multerS3({
+  s3: s3,
+  bucket: "wetubeliah/videos",
   acl: "public-read",
 });
 
@@ -20,6 +28,7 @@ export const localsMiddleware = (req, res, next) => {
   res.locals.loggedIn = Boolean(req.session.loggedIn);
   res.locals.siteName = "Wetube";
   res.locals.loggedInUser = req.session.user || {}; //loggedInUser = 현재 로그인된 유저
+  res.local.isHeroku = isHeroku;
   next();
 };
 
@@ -49,7 +58,7 @@ export const avatarUpload = multer({
   limits: {
     fileSize: 3000000,
   },
-  storage: multerUploader,
+  storage: isHeroku ? s3ImageUploader : undefined,
 });
 //유저가 업로드한 비디오 파일을 uploads 폴더의 a
 export const videoUpload = multer({
@@ -57,5 +66,5 @@ export const videoUpload = multer({
   limits: {
     fileSize: 100000000,
   },
-  storage: multerUploader,
+  storage: isHeroku ? s3VideoUploader : undefined,
 });
