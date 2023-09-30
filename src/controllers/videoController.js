@@ -1,4 +1,5 @@
 import Video from "../models/video";
+import Comment from "../models/Comment";
 import User from "../models/User";
 
 export const home = async (req, res) => {
@@ -10,7 +11,7 @@ export const home = async (req, res) => {
 
 export const watch = async (req, res) => {
   const { id } = req.params;
-  const video = await Video.findById(id).populate("owner");
+  const video = await Video.findById(id).populate("owner").populate("comments");
   //populate을 통해 mongoose가 video모델을 찾고, 그 안에서 owner도 찾아줌
   //mongoose는 Video모델에서 owner가 Object Id인것을 알고, 이 ObjectId도 User모델에서 온 것임을 안다.
   //user의 id뿐만 아니라, 모든 정보를 알 수 있음
@@ -69,7 +70,6 @@ export const postUpload = async (req, res) => {
   const {
     user: { _id },
   } = req.session;
-  console.log(req.files);
   const { video, thumb } = req.files;
   const { title, description, hashtags } = req.body;
   try {
@@ -134,4 +134,40 @@ export const registerView = async (req, res) => {
   video.meta.views = video.meta.views + 1;
   await video.save(); //수정된 data를 db에 저장하기 위한 save function
   return res.sendStatus(200); // =ok
+};
+
+export const createComment = async (req, res) => {
+  const {
+    session: { user }, //댓글을 쓴 유저정보
+    body: { text }, //댓글정보
+    params: { id }, //댓글 달 비디오 정보
+  } = req;
+
+  const video = await Video.findById(id);
+
+  if (!video) {
+    return res.sendStatus(404);
+  }
+
+  const comment = await Comment.create({
+    text,
+    owner: user._id,
+    video: id,
+  });
+  video.comments.push(comment._id);
+  video.save();
+  return res.status(201).json({ newCommentId: comment._id });
+};
+export const deleteComment = async (req, res) => {
+  const { id, videoid } = req.body; // comment id, video id
+  const { _id } = req.session.user; // user id
+  const { owner } = await Comment.findById(id);
+  const video = await Video.findById(videoid);
+  if (String(owner) !== _id) return res.sendStatus(403);
+  else {
+    await Comment.findByIdAndDelete(id);
+    video.comments.splice(video.comments.indexOf(videoid), 1);
+    video.save();
+    return res.sendStatus(200);
+  }
 };

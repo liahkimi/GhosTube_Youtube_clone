@@ -25,13 +25,13 @@ input[type="submit"] {
   }
 }
 
-.submitBtn,
+input[type="submit"],
 .social__btn {
   border-radius: 5px;
   padding: 12px 20px;
-  background-color: white;
-  color: rgba($color: $red, $alpha: 1);
-  text-align: center;
+  background-color: white !important;
+  color: rgba($color: $red, $alpha: 1) !important;
+  text-align: center !important;
   cursor: pointer;
   display: block;
   border: none;

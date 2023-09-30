@@ -137,7 +137,8 @@ export const finishGithubLogin = async (req, res) => {
   }
 };
 export const logout = (req, res) => {
-  req.session.destroy();
+  req.session.user = null;
+  req.session.loggedIn = false;
   req.flash("info", "Bye Bye");
   return res.redirect("/");
 };
