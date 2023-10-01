@@ -67,9 +67,11 @@ const formatTime = (seconds) =>
   new Date(seconds * 1000).toISOString().substring(14, 20);
 
 //비디오 상태바 기능
-const handleLoadedMetadata = () => {
-  totalTime.innerText = formatTime(Math.floor(video.duration));
-  timeline.max = Math.floor(video.duration); //비디오 상태바 max길이 설정
+const handleLoadedData = () => {
+  if (!isNaN(video.duration)) {
+    totalTime.innerText = formatTime(Math.floor(video.duration));
+    timeline.max = Math.floor(video.duration); //비디오 상태바 max길이 설정
+  }
 };
 
 //현재시간 실시간 업데이트
@@ -160,8 +162,8 @@ playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMuteClick);
 volumeRange.addEventListener("input", handleVolumeChange);
 //video.addEventListener("loadeddata", handleLoadedMetadata);
-video.addEventListener("canplay", handleLoadedMetadata);
-handleLoadedMetadata();
+video.addEventListener("canplay", handleLoadedData);
+handleLoadedData();
 video.addEventListener("timeupdate", handleTimeUpdate);
 video.addEventListener("ended", handleEnded);
 videoContainer.addEventListener("mousemove", handleMouseMove);
