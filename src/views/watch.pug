@@ -22,23 +22,22 @@ block content
 
     div.video__data
         p.video__title=video.title
-        small.video__owner Uploaded by 
+        small.video__owner 🤍Uploaded by 
             a(href=`/users/${video.owner._id}`)=video.owner.name
-        small.video__createdAt=new Date(video.createdAt).toLocaleDateString("ko-kr", {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})
+        small.video__createdAt=new Date(video.createdAt).toLocaleDateString("ko-kr", {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})       
         if String(video.owner._id) === String(loggedInUser._id)
-            a(href=`${video._id}/edit`) Edit Video &rarr;
-            br
-            a(href=`${video._id}/delete`) Delete Video &rarr;
+            a(href=`${video._id}/edit`).videoEdit 🔧Edit Video &rarr;
+            a(href=`${video._id}/delete`).videoDelete 🗑 Delete Video &rarr;
     if loggedIn
         div.video__add-comments 
             form.video__comment-form#commentForm
-                textarea(cols="30", rows="10", placeholder="Write a nice comment...")
-                button Add Comment
+                textarea(cols="50", rows="3",color:white, placeholder="댓글 달아주세요~~🤍")
+                button <i class="fas fa-plus"></i>
     .video__comments 
         ul 
             each comment in video.comments.reverse()
                 li#videoComment.video__comment
-                    i.fas.fa-comment
+                    span.comment__icon 👻
                     span  #{comment.text}      
                     if String(comment.owner) === String(loggedInUser._id) 
                         span.video__comment-delete#deleteCommentBtn(data-id=comment._id)(data-videoId=video._id) ❌

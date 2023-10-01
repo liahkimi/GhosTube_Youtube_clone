@@ -3,27 +3,68 @@
   display: flex;
   flex-direction: column;
   .video__title {
-    font-size: 26px;
-    margin-bottom: 5px;
-  }
-  .video__createdAt {
-    font-size: 12px;
+    font-family: "Pixelify Sans", cursive;
+    font-weight: bolder;
+    font-size: 35px;
+    margin-bottom: 20px;
+    color: $red;
   }
   .video__owner {
     margin-bottom: 5px;
     font-size: 14px;
     a {
-      color: cornflowerblue;
+      color: white;
+      font-weight: bolder;
       text-decoration: underline;
     }
   }
+  .video__createdAt {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  .videoEdit {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  .videoDelete {
+    font-size: 14px;
+    margin-top: 10px;
+  }
 }
+
+.video__add-comments {
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 20px;
+  button {
+    border-radius: 35%;
+    float: right;
+    color: $red;
+    text-align: center;
+    margin: 10px 0px;
+    border: none;
+  }
+  textarea {
+    width: 300px;
+    height: 30px;
+    font-size: 18px;
+    background-color: #8b8b8b1c;
+    resize: none;
+    color: white;
+    border: none;
+    border-bottom: 2px solid #0000007e;
+    outline: none;
+  }
+}
+
 .video__comments {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 50%;
   margin: 0 auto;
-  margin-top: 20px;
+  margin-top: 10px;
   .video__comment {
     padding: 10px;
     border-radius: 9999px;
@@ -36,6 +77,6 @@
     font-size: 11px;
     color: $gray;
     text-align: center;
-    margin: 15px 0px;
+    margin: 0px 0px;
   }
 }

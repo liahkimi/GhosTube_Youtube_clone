@@ -5,13 +5,19 @@ const deleteBtn = document.querySelectorAll("#deleteCommentBtn");
 const addComment = (text, commentId) => {
   const videoComments = document.querySelector(".video__comments ul");
   const newComment = document.createElement("li");
-  newComment.className = "video__comment";
   const icon = document.createElement("icon");
-  icon.className = "fas fa-comment";
   const span = document.createElement("span");
-  span.innerText = ` ${text}`;
   const span2 = document.createElement("span");
+
+  newComment.className = "video__comment";
+  icon.className = "comment__icon";
+  newComment.appendChild(icon);
+
+  icon.innerText = "👻";
+
+  span.innerText = ` ${text}`;
   span2.innerText = "❌";
+
   span2.dataset.id = commentId;
   span2.dataset.videoid = videoContainer.dataset.id;
   span2.id = "newDeleteCommentBtn";
