@@ -1,11 +1,29 @@
 header {
-  padding: 20px 50px;
+  padding: 30px 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  text-transform: lowercase;
   .header__logo {
     color: $red;
-    font-size: 38px;
+    font-family: "Pixelify Sans", cursive;
+    font-size: 70px;
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+    .header__image {
+      display: none;
+    }
+    &:hover {
+      .header__image {
+        display: inline;
+        color: white;
+      }
+      .header__title,
+      .fab.fa-youtube {
+        display: none;
+      }
+    }
   }
   ul {
     display: flex;
